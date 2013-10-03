@@ -1342,7 +1342,7 @@ function substream(Stream) {
   SubStream.prototype.write = function write(msg) {
     return this.stream.write({
       args: Array.prototype.slice.call(arguments),
-      $ub$tream: this.name
+      name: this.name
     });
   };
 
