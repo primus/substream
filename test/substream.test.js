@@ -143,7 +143,6 @@ describe('multi-stream', function test() {
         , count = 0;
 
       socket.on('open', function () {
-
         ['bar', 'baz', 'foo'].forEach(function (name) {
           var stream = socket.substream('/'+ name);
 

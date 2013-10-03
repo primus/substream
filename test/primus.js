@@ -1228,7 +1228,9 @@ Primus.prototype.ark["multi-stream"] = function client(primus) {
    * @api private
    */
   primus.substream = function substream(name) {
-    return this.streams[name] || new SubStream(this, name);
+    return this.streams[name] || new SubStream(this, name, {
+      proxy: [ 'offline', 'online', 'timeout', 'reconnecting', 'open', 'reconnect' ]
+    });
   };
 
   /**
@@ -1340,7 +1342,7 @@ function substream(Stream) {
   SubStream.prototype.write = function write(msg) {
     return this.stream.write({
       args: Array.prototype.slice.call(arguments),
-      name: this.name
+      $ub$tream: this.name
     });
   };
 
@@ -1376,13 +1378,9 @@ function substream(Stream) {
    */
   SubStream.prototype.mine = function mine(packet) {
     if ('object' !== typeof packet || packet.name !== this.name) return false;
+    this.emit.apply(this, ['data'].concat(packet.args));
 
-    //
-    // Emit the data event, to see if it's handled if we don't have a data
-    // handler, we're going to assume that it's not meant for us and the message
-    // will bubble up to the `data` event of the stream.
-    //
-    return this.emit.apply(this, ['data'].concat(packet.args));
+    return true;
   };
 
   return SubStream;

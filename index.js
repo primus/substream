@@ -64,7 +64,9 @@ exports.client = function client(primus) {
    * @api private
    */
   primus.substream = function substream(name) {
-    return this.streams[name] || new SubStream(this, name);
+    return this.streams[name] || new SubStream(this, name, {
+      proxy: [ 'offline', 'online', 'timeout', 'reconnecting', 'open', 'reconnect' ]
+    });
   };
 
   /**

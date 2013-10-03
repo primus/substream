@@ -127,13 +127,9 @@ function substream(Stream) {
    */
   SubStream.prototype.mine = function mine(packet) {
     if ('object' !== typeof packet || packet.name !== this.name) return false;
+    this.emit.apply(this, ['data'].concat(packet.args));
 
-    //
-    // Emit the data event, to see if it's handled if we don't have a data
-    // handler, we're going to assume that it's not meant for us and the message
-    // will bubble up to the `data` event of the stream.
-    //
-    return this.emit.apply(this, ['data'].concat(packet.args));
+    return true;
   };
 
   return SubStream;
