@@ -2,7 +2,7 @@
 'use strict';
 
 var library = require('fs').readFileSync(__dirname + '/substream.js', 'utf-8')
-  , substream = require('load').compiler(library);
+  , substream = require('load').compiler(library).substream;
 
 exports.server = function server(primus) {
   var SubStream = substream(require('stream'))

@@ -15,7 +15,7 @@
   "author": "Arnout Kazemier",
   "license": "MIT",
   "dependencies": {
-    "load": "0.1.x"
+    "load": "1.0.x"
   },
   "repository": {
     "type": "git",
