@@ -1,8 +1,11 @@
 # SubStream
 
+[![Build Status](https://travis-ci.org/primus/substream.png)](https://travis-ci.org/primus/substream)
+[![NPM version](https://badge.fury.io/js/substream.png)](http://badge.fury.io/js/substream)
+
 SubStream is a simple stream multiplexer for [Primus]. It allows you to create
 simple message channels which only receive the information you send to it. These
-channels are infact, streams, which is why this module is called `SubStreams`
+channels are in fact, streams, which is why this module is called `SubStreams`
 because it adds small streams on top of the main stream and intercepts them.
 
 ## Installation
@@ -11,8 +14,8 @@ because it adds small streams on top of the main stream and intercepts them.
 npm install --save substream
 ```
 
-The module can only be used in conjuction with [Primus] so make sure that your
-application is using that as real-time backend. 
+The module can only be used in conjunction with [Primus] so make sure that your
+application is using that as real-time backend.
 
 ## Getting started
 
@@ -62,7 +65,7 @@ up correctly we can start creating some substreams.
 
 ### The client
 
-To create or access a `substream` in the primus client start off with making
+To create or access a `substream` in the [Primus] client start off with making
 a connection:
 
 ```js
