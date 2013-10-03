@@ -22,7 +22,7 @@
     "url": "git://github.com/primus/substream.git"
   },
   "devDependencies": {
-    "primus": "1.4.x",
+    "primus": "git://github.com/primus/primus.git#master",
     "pre-commit": "0.0.x",
     "mocha": "1.13.x",
     "chai": "1.8.x",
