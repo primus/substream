@@ -160,5 +160,30 @@ describe('multi-stream', function test() {
         });
       });
     });
+
+    it('only emits the events once', function (done) {
+      primus.on('connection', function (spark) {
+        var foo = spark.substream('foo');
+
+        foo.on('data', function (msg) {
+          expect(msg).to.equal('Hello Server');
+          counts++;
+
+          setTimeout(function () {
+            expect(counts).to.equal(1);
+
+            spark.end();
+            done();
+          }, 1000);
+        });
+      });
+
+      var counts = 0
+        , Socket = primus.Socket
+        , socket = new Socket('http://localhost:'+ port +'/');
+
+      var foo = socket.substream('foo');
+      foo.write('Hello Server');
+    });
   });
 });
