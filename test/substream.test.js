@@ -163,27 +163,32 @@ describe('multi-stream', function test() {
 
     it('only emits the events once', function (done) {
       primus.on('connection', function (spark) {
-        var foo = spark.substream('foo');
+        var foo = spark.substream('foo')
+          , counts = 0;
 
         foo.on('data', function (msg) {
           expect(msg).to.equal('Hello Server');
+          globalcounts++;
           counts++;
 
-          setTimeout(function () {
-            expect(counts).to.equal(1);
+          expect(counts).to.equal(1);
 
-            spark.end();
+          if (globalcounts > 1) setTimeout(function () {
             done();
-          }, 1000);
+            done = function () {};
+          }, 100);
         });
       });
 
-      var counts = 0
-        , Socket = primus.Socket
-        , socket = new Socket('http://localhost:'+ port +'/');
+      var Socket = primus.Socket
+        , globalcounts = 0;
 
-      var foo = socket.substream('foo');
-      foo.write('Hello Server');
+      [1, 2].forEach(function () {
+        var socket = new Socket('http://localhost:'+ port +'/')
+          , foo = socket.substream('foo');
+
+        foo.write('Hello Server');
+      });
     });
   });
 });

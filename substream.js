@@ -43,7 +43,7 @@ function substream(Stream) {
     stream.streams[name] = this;
 
     //
-    //
+    // We're doing "manual" invocation of module, as require('util') didn't work.
     //
     if (manual) Stream.call(this);
 

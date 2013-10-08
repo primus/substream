@@ -9,14 +9,6 @@ exports.server = function server(primus) {
     , Spark = primus.Spark;
 
   /**
-   * Collection of SubStreams.
-   *
-   * @type {Object}
-   * @api private
-   */
-  Spark.prototype.streams = {};
-
-  /**
    * Create a new namespace.
    *
    * @param {String} name Namespace id
@@ -24,6 +16,7 @@ exports.server = function server(primus) {
    * @api private
    */
   Spark.prototype.substream = function substream(name) {
+    if (!this.streams) this.streams = {};
     return this.streams[name] || new SubStream(this, name);
   };
 
