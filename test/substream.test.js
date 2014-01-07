@@ -205,5 +205,15 @@ describe('multi-stream', function test() {
         foo.write('Hello Server');
       });
     });
+
+    it('proxies readyState', function (done) {
+      primus.on('connection', function (spark) {
+        done();
+      });
+
+      var socket = new primus.Socket('http://localhost:'+ port);
+      var foo = socket.substream('foo');
+      expect(foo.readyState).to.equal(socket.readyState);
+    });
   });
 });
