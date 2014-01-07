@@ -37,6 +37,13 @@ substream = function factory(Stream) {
     this.stream.on('end', this.emits('end'));
 
     //
+    // Proxy readyState.
+    //
+    Object.defineProperty(this, 'readyState', {
+      get: function() { return stream.readyState; }
+    });
+
+    //
     // Register the SubStream on the socket.
     //
     if (!stream.streams) stream.streams = {};
