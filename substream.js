@@ -23,11 +23,18 @@ substream = function factory(Stream) {
   function SubStream(stream, name, options) {
     if (!(this instanceof SubStream)) return new SubStream(stream, name, options);
 
+    var self = this;
     options = options || {};
 
+    this.readyState = stream.readyState;
     this.options = options;
     this.stream = stream;               // The underlaying stream
     this.name = name;                   // The stream namespace/name
+
+    //
+    // We're always as ready as the underlying stream.
+    //
+    this.stream.on('readyStateChange', function() { self.readyState = stream.readyState; });
 
     //
     // Proxy the events that are emitted through the streams interface.
@@ -35,13 +42,7 @@ substream = function factory(Stream) {
     this.stream.on('error', this.emits('error'));
     this.stream.on('close', this.emits('close'));
     this.stream.on('end', this.emits('end'));
-
-    //
-    // Proxy readyState.
-    //
-    Object.defineProperty(this, 'readyState', {
-      get: function() { return stream.readyState; }
-    });
+    this.stream.on('readyStateChange', this.emits('readyStateChange'));
 
     //
     // Register the SubStream on the socket.
