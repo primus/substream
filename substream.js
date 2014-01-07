@@ -2,7 +2,7 @@
 // Wrapper needed to switch between server side based Streams and client side
 // based EventEmitter3. This way, we can inherit from all of them.
 //
-function substream(Stream) {
+substream = function factory(Stream) {
   'use strict';
 
   var manual;

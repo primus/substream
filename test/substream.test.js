@@ -34,6 +34,21 @@ describe('multi-stream', function test() {
     var Socket = primus.Socket;
   });
 
+  it('exposes the substream function', function (done) {
+    primus.use('substream', plugin);
+
+    primus.on('connection', function (spark) {
+      expect(spark.substream).to.be.a('function');
+      spark.end();
+    });
+
+    var Socket = primus.Socket
+      , socket = new Socket('http://localhost:'+ port);
+
+    expect(socket.substream).to.be.a('function');
+    socket.on('end', done);
+  });
+
   describe('communication', function () {
     beforeEach(function () {
       primus.use('substream', plugin);
