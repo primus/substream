@@ -15,11 +15,11 @@ npm install --save substream
 ```
 
 The module can only be used in conjunction with [Primus] so make sure that your
-application is using that as real-time backend.
+application is using that as its real-time backend.
 
 ## Getting started
 
-In all the code examples we assume that the following code is present:
+In all the code examples, we assume that the following code is present:
 
 ```js
 'use strict';
@@ -43,16 +43,16 @@ a plugin in to [Primus]:
 
 ```js
 //
-// The `primus.use` method adds the plugin to primus. It requires a name in
-// order to easily retrieve it again, it needs to be unique but for the sake of
-// clairity, we're using to use substream as a name.
+// The `primus.use` method adds the plugin to primus. It requires a unique
+// name in order to easily retrieve it again. For the
+// sake of clarity, we're going to use 'substream' as the name.
 //
 primus.use('substream', require('substream'));
 ```
 
 After you've added plugins, you might want to re-compile the client library that
-[Primus] serves as it automatically the client-side plugin to the framework as
-well as the custom `substream.js` library to create the actual name spaces. To
+[Primus] serves, as it automatically adds the client-side plugin to the framework,
+as well as the custom `substream.js` library to create the actual name spaces. To
 save the client just run:
 
 ```js
@@ -75,8 +75,8 @@ var foo = primus.substream('foo');
 ```
 
 The `substream` method automatically creates a namespaced stream if you didn't
-create it before. Or it will return your previously created stream when you call
-it again. So now we have a `foo` stream we can just write to it:
+create it before. Or, it will return your previously created stream when you call
+it again. So now we have a `foo` stream we can just write to:
 
 ```js
 foo.write('data');
@@ -90,13 +90,13 @@ var bar = primus.substream('bar')
   , baz = primus.substream('baz');
 ```
 
-You can create an infinite amount substreams on top of one single base stream.
+You can create an infinite number of substreams on top of one single base stream.
 The data is not leaked between streams. It's all "sandboxed".
 
 As the returned substreams are `streams` or `eventemitters` we can just listen
 to `data`, `end` or `close` events. But it also proxies all the other events
-that [Primus] emits such as the `reconnect`, `offline` events etc. (The full
-list is in the Primus README.md). So for receiving and writing data you can just
+that [Primus] emitsm such as the `reconnect`, `offline` events etc. (The full
+list is in the [Primus] README.md). So for receiving and writing data you can just
 do:
 
 ```js
@@ -131,7 +131,7 @@ primus.on('connection', function (spark) {
   //
   // You can even pipe data
   //
-  fs.createReadSteam(__dirname +/'example.js').pipe(bar, {
+  fs.createReadSteam(__dirname + '/example.js').pipe(bar, {
     end: false
   });
 
