@@ -60,8 +60,8 @@ primus.save(__dirname +'/primus.js');
 ```
 
 But this is only needed if you serve the file manually and not through the
-automatically generated `/primus/primus.js` path. Now that we've set everything
-up correctly we can start creating some substreams.
+automatically generated `/primus/primus.js` path (which is regenerated on the fly).
+Now that we've set everything up correctly we can start creating some substreams.
 
 ### The client
 
