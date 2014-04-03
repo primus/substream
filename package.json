@@ -21,6 +21,9 @@
     "type": "git",
     "url": "git://github.com/primus/substream.git"
   },
+  "peerDependencies": {
+    "primus": "*"
+  },
   "devDependencies": {
     "primus": "git://github.com/primus/primus.git#master",
     "pre-commit": "0.0.x",
