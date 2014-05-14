@@ -1,0 +1,12 @@
+<html>
+  <head>
+    <script src="/primus/primus.js"></script>
+  </head>
+<body></body>
+<script type="text/javascript">
+  var primus = new Primus()
+  , foo = primus.substream('foo');
+
+  foo.write('Hello Server');
+</script>
+</html>

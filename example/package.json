@@ -1,0 +1,17 @@
+{
+  "name": "example",
+  "version": "0.0.0",
+  "description": "Small SubStreams example",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Arnout Kazemier",
+  "license": "MIT",
+  "dependencies": {
+    "engine.io": "~0.7.9"
+  },
+  "devDependencies": {
+    "engine.io-client": "~0.7.9"
+  }
+}
