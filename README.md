@@ -95,7 +95,7 @@ The data is not leaked between streams. It's all "sandboxed".
 
 As the returned substreams are `streams` or `eventemitters` we can just listen
 to `data`, `end` or `close` events. But it also proxies all the other events
-that [Primus] emitsm such as the `reconnect`, `offline` events etc. (The full
+that [Primus] emits such as the `reconnect`, `offline` events etc. (The full
 list is in the [Primus] README.md). So for receiving and writing data you can just
 do:
 
@@ -141,6 +141,13 @@ primus.on('connection', function (spark) {
   baz.end();
 })
 ```
+
+### FYI's
+
+- When the spark/connection closes all SubStreams will automatically close, this
+  only happens for the end event, the close event is proxied.
+- We add an extra `streams` object to the spark/connection which contains all
+  active SubStreams for the given connection mapped by name->substream-instance
 
 ## License
 
