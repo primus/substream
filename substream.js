@@ -12,12 +12,13 @@ substream = function factory(Stream) {
    * stream.
    *
    * Options:
+   *
    * - proxy: Array of addition events that need to be re-emitted.
    *
    * @constructor
    * @param {Stream} stream The stream that needs we're streaming over.
    * @param {String} name The name of our stream.
-   * @param {object} option Streams configuration.
+   * @param {object} options SubStream configuration.
    * @api public
    */
   function SubStream(stream, name, options) {
@@ -26,35 +27,41 @@ substream = function factory(Stream) {
     var self = this;
     options = options || {};
 
-    this.readyState = stream.readyState;
-    this.options = options;
-    this.stream = stream;               // The underlaying stream
-    this.name = name;                   // The stream namespace/name
+    this.readyState = stream.readyState;  // Copy the current readyState.
+    this.stream = stream;                 // The underlaying stream.
+    this.name = name;                     // The stream namespace/name.
 
     //
     // We're always as ready as the underlying stream.
     //
-    this.stream.on('readyStateChange', function() { self.readyState = stream.readyState; });
+    this.stream.on('readyStateChange', function readyStateChange() {
+      self.readyState = stream.readyState;
+      self.emit('readyStateChange');
+    });
 
     //
-    // Proxy the events that are emitted through the streams interface.
+    // Ensure that we've properly closed the SubStream when the connection is
+    // fully ended, not closed.
     //
-    this.stream.on('error', this.emits('error'));
-    this.stream.on('close', this.emits('close'));
-    this.stream.on('end', this.emits('end'));
-    this.stream.on('readyStateChange', this.emits('readyStateChange'));
+    this.stream.once('end', function end() {
+      self.end();
+    });
 
     //
     // Register the SubStream on the socket.
     //
     if (!stream.streams) stream.streams = {};
-    stream.streams[name] = this;
+    if (!stream.streams[name]) stream.streams[name] = this;
 
     //
     // We're doing "manual" invocation of module, as require('util') didn't work.
     //
     if (manual) Stream.call(this);
 
+    //
+    // No need to continue with the execution if we don't have any events that
+    // need to be proxied.
+    //
     if (!options.proxy) return;
 
     for (var i = 0, l = options.proxy.length, event; i < l; i++) {
@@ -99,7 +106,7 @@ substream = function factory(Stream) {
   SubStream.prototype.write = function write(msg) {
     return this.stream.write({
       args: Array.prototype.slice.call(arguments),
-      name: this.name
+      substream: this.name
     });
   };
 
@@ -110,6 +117,13 @@ substream = function factory(Stream) {
    * @api public
    */
   SubStream.prototype.end = function end(msg) {
+    //
+    // The substream was already closed.
+    //
+    if (!(this.stream && this.stream.streams && this.stream.streams[this.name])) {
+      return this;
+    }
+
     if (msg) this.write(msg);
 
     //
@@ -123,7 +137,12 @@ substream = function factory(Stream) {
     this.emit('close');
     this.emit('end');
 
-    return this;
+    //
+    // Release optential references.
+    //
+    this.stream = null;
+
+    return this.removeAllListeners();
   };
 
   /**
@@ -134,11 +153,13 @@ substream = function factory(Stream) {
    * @api public
    */
   SubStream.prototype.mine = function mine(packet) {
-    if ('object' !== typeof packet || packet.name !== this.name) return false;
-    this.emit.apply(this, ['data'].concat(packet.args));
+    if ('object' !== typeof packet || packet.substream !== this.name) return false;
+
+    packet.args.unshift('data');
+    this.emit.apply(this, packet.args);
 
     return true;
   };
 
   return SubStream;
-}
+};

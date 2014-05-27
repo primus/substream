@@ -4,6 +4,12 @@
 var library = require('fs').readFileSync(__dirname + '/substream.js', 'utf-8')
   , substream = require('load').compiler(library).substream;
 
+/**
+ * SubStream for the Primus server.
+ *
+ * @param {Primus} primus The Primus real-time server.
+ * @api public
+ */
 exports.server = function server(primus) {
   var SubStream = substream(require('stream'))
     , Spark = primus.Spark;
@@ -17,7 +23,11 @@ exports.server = function server(primus) {
    */
   Spark.prototype.substream = function substream(name) {
     if (!this.streams) this.streams = {};
-    return this.streams[name] || new SubStream(this, name);
+    if (!this.streams[name]) this.streams[name] = new SubStream(this, name, {
+      proxy: [ 'error' ]
+    });
+
+    return this.streams[name];
   };
 
   /**
@@ -38,6 +48,12 @@ exports.server = function server(primus) {
 
 };
 
+/**
+ * SubStream for the Primus client API.
+ *
+ * @param {Primus} primus The Primus client.
+ * @api public
+ */
 exports.client = function client(primus) {
   var SubStream = substream(Primus.Stream);
 
@@ -57,9 +73,15 @@ exports.client = function client(primus) {
    * @api private
    */
   primus.substream = function substream(name) {
-    return this.streams[name] || new SubStream(this, name, {
-      proxy: [ 'offline', 'online', 'timeout', 'reconnecting', 'open', 'reconnect' ]
+    if (!primus.streams) primus.streams = {};
+    if (!primus.streams[name]) primus.streams[name] = new SubStream(primus, name, {
+      proxy: [
+        'offline', 'online', 'timeout', 'reconnecting', 'open', 'reconnect',
+        'error', 'close'
+      ]
     });
+
+    return primus.streams[name];
   };
 
   /**
