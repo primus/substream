@@ -206,12 +206,86 @@ describe('multi-stream', function test() {
 
     it('proxies readyState', function (done) {
       primus.on('connection', function (spark) {
+        setTimeout(function () {
+          assume(foo.readyState).to.equal(socket.readyState);
+          done();
+
+        }, 10);
+      });
+
+      var socket = new primus.Socket('http://localhost:'+ port)
+        , foo = socket.substream('foo');
+
+      assume(foo.readyState).to.equal(socket.readyState);
+    });
+
+    it('returns the same substream instance when calling with same name', function (done) {
+      primus.on('connection', function (spark) {
+        var foo = spark.substream('foo')
+          , bar = spark.substream('foo');
+
+        assume(foo).to.equal(bar);
         done();
       });
 
-      var socket = new primus.Socket('http://localhost:'+ port);
-      var foo = socket.substream('foo');
-      assume(foo.readyState).to.equal(socket.readyState);
+      var socket = new primus.Socket('http://localhost:'+ port)
+        , foo = socket.substream('foo')
+        , bar = socket.substream('foo');
+
+      assume(foo).to.equal(bar);
+    });
+
+    it('adds substreams as special streams property', function (done) {
+      primus.on('connection', function (spark) {
+        var foo = spark.substream('foo');
+
+        assume(foo).to.equal(spark.streams.foo);
+        done();
+      });
+
+      var socket = new primus.Socket('http://localhost:'+ port)
+        , foo = socket.substream('foo');
+
+      assume(foo).to.equal(socket.streams.foo);
+    });
+
+    it('closes the substream when its ended on the client', function (done) {
+      primus.on('connection', function (spark) {
+        var foo = spark.substream('foo');
+        foo.write('bar');
+
+        foo.on('end', function end() {
+          spark.end();
+          done();
+        });
+      });
+
+      var socket = new primus.Socket('http://localhost:'+ port)
+        , foo = socket.substream('foo');
+
+      foo.on('data', function (msg) {
+        if ('bar' === msg) foo.end();
+      });
+    });
+
+    it('closes the substream when its ended on the server', function (done) {
+      primus.on('connection', function (spark) {
+        var foo = spark.substream('foo');
+
+        foo.on('data', function (msg) {
+          if ('bar' === msg) foo.end();
+        });
+      });
+
+      var socket = new primus.Socket('http://localhost:'+ port)
+        , foo = socket.substream('foo');
+
+      foo.write('bar');
+
+      foo.on('end', function end() {
+        socket.end();
+        done();
+      });
     });
   });
 });

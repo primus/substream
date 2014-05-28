@@ -5,7 +5,7 @@
 substream = function factory(Stream) {
   'use strict';
 
-  var manual;
+  var manual = false;
 
   /**
    * Streams provides a streaming, namespaced interface on top of a regular
@@ -114,17 +114,20 @@ substream = function factory(Stream) {
    * Close the connection.
    *
    * @param {Mixed} data last packet of data.
+   * @param {Boolean} received Send a substream::end message.
+   * @returns {SubStream}
    * @api public
    */
-  SubStream.prototype.end = function end(msg) {
+  SubStream.prototype.end = function end(msg, received) {
     //
-    // The substream was already closed.
+    // The SubStream was already closed.
     //
     if (!(this.stream && this.stream.streams && this.stream.streams[this.name])) {
       return this;
     }
 
     if (msg) this.write(msg);
+    if (!received) this.write('substream::end');
 
     //
     // As we've closed the stream, unregister our selfs from the `streams`
@@ -138,7 +141,7 @@ substream = function factory(Stream) {
     this.emit('end');
 
     //
-    // Release optential references.
+    // Release references.
     //
     this.stream = null;
 
@@ -154,6 +157,7 @@ substream = function factory(Stream) {
    */
   SubStream.prototype.mine = function mine(packet) {
     if ('object' !== typeof packet || packet.substream !== this.name) return false;
+    if ('substream::end' === packet.args[0]) return this.end(null, true), true;
 
     packet.args.unshift('data');
     this.emit.apply(this, packet.args);
