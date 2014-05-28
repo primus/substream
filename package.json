@@ -1,6 +1,6 @@
 {
   "name": "substream",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "Volatile namespaces for Primus",
   "main": "index.js",
   "scripts": {
