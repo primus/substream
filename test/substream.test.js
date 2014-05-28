@@ -2,14 +2,12 @@ describe('multi-stream', function test() {
   'use strict';
 
   var Primus = require('primus')
+    , assume = require('assume')
     , plugin = require('../')
-    , chai = require('chai')
     , http = require('http')
-    , expect = chai.expect
     , port = 1024
     , primus;
 
-  chai.Assertion.includeStack = true;
 
   beforeEach(function (done) {
     var server = http.createServer();
@@ -38,14 +36,14 @@ describe('multi-stream', function test() {
     primus.use('substream', plugin);
 
     primus.on('connection', function (spark) {
-      expect(spark.substream).to.be.a('function');
+      assume(spark.substream).to.be.a('function');
       spark.end();
     });
 
     var Socket = primus.Socket
       , socket = new Socket('http://localhost:'+ port);
 
-    expect(socket.substream).to.be.a('function');
+    assume(socket.substream).to.be.a('function');
     socket.on('end', done);
   });
 
@@ -59,7 +57,7 @@ describe('multi-stream', function test() {
         var foo = spark.substream('foo');
 
         foo.on('data', function (data) {
-          expect(data).to.equal('foo');
+          assume(data).to.equal('foo');
           spark.end();
 
           done();
@@ -88,7 +86,7 @@ describe('multi-stream', function test() {
           ends++;
 
           process.nextTick(function () {
-            expect(ends).to.equal(4);
+            assume(ends).to.equal(4);
 
             done();
           });
@@ -125,7 +123,7 @@ describe('multi-stream', function test() {
 
       socket.on('open', function () {
         socket.substream('foo').on('data', function (msg) {
-          expect(msg).to.equal('foo');
+          assume(msg).to.equal('foo');
           socket.end();
           done();
         });
@@ -139,7 +137,7 @@ describe('multi-stream', function test() {
             , send = 0;
 
           stream.on('data', function (data) {
-            expect(data).to.equal(name);
+            assume(data).to.equal(name);
           });
 
           (function write() {
@@ -162,7 +160,7 @@ describe('multi-stream', function test() {
           var stream = socket.substream('/'+ name);
 
           stream.on('data', function (data) {
-            expect(data).to.equal(name);
+            assume(data).to.equal(name);
             stream.write(data);
 
             count++;
@@ -182,11 +180,11 @@ describe('multi-stream', function test() {
           , counts = 0;
 
         foo.on('data', function (msg) {
-          expect(msg).to.equal('Hello Server');
+          assume(msg).to.equal('Hello Server');
           globalcounts++;
           counts++;
 
-          expect(counts).to.equal(1);
+          assume(counts).to.equal(1);
 
           if (globalcounts > 1) setTimeout(function () {
             done();
@@ -213,7 +211,7 @@ describe('multi-stream', function test() {
 
       var socket = new primus.Socket('http://localhost:'+ port);
       var foo = socket.substream('foo');
-      expect(foo.readyState).to.equal(socket.readyState);
+      assume(foo.readyState).to.equal(socket.readyState);
     });
   });
 });

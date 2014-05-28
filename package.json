@@ -23,9 +23,9 @@
   },
   "devDependencies": {
     "primus": "git://github.com/primus/primus.git#master",
+    "assume": "0.0.x",
     "pre-commit": "0.0.x",
-    "mocha": "1.13.x",
-    "chai": "1.8.x",
+    "mocha": "1.19.x",
     "ws": "0.4.x"
   }
 }
