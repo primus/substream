@@ -287,5 +287,30 @@ describe('multi-stream', function test() {
         done();
       });
     });
+
+    it('removes substreams from the streams object on end', function () {
+      primus.on('connection', function (spark) {
+        var foo = spark.substream('foo');
+
+        foo.on('data', function (msg) {
+          if ('bar' === msg) foo.end();
+        });
+
+        foo.on('end', function () {
+          assume(spark.streams.foo).to.be.undefined();
+        });
+      });
+
+      var socket = new primus.Socket('http://localhost:'+ port)
+        , foo = socket.substream('foo');
+
+      foo.write('bar');
+
+      foo.on('end', function end() {
+        socket.end();
+        assume(socket.streams.foo).to.be.undefined();
+        done();
+      });
+    });
   });
 });
