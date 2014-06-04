@@ -30,13 +30,14 @@ substream = function factory(Stream) {
     this.readyState = stream.readyState;  // Copy the current readyState.
     this.stream = stream;                 // The underlaying stream.
     this.name = name;                     // The stream namespace/name.
+    this.primus = options.primus;         // Primus reference.
 
     //
     // We're always as ready as the underlying stream.
     //
-    this.stream.on('readyStateChange', function readyStateChange() {
+    this.stream.on('readyStateChange', function readyStateChange(why) {
       self.readyState = stream.readyState;
-      self.emit('readyStateChange');
+      self.emit('readyStateChange', why);
     });
 
     //
@@ -78,6 +79,16 @@ substream = function factory(Stream) {
   }
 
   /**
+   * Mirror or Primus readyStates, used internally to set the correct ready state.
+   *
+   * @type {Number}
+   * @private
+   */
+  SubStream.OPENING = 1;   // We're opening the connection.
+  SubStream.CLOSED  = 2;   // No active connection.
+  SubStream.OPEN    = 3;   // The connection is open.
+
+  /**
    * Simple emit wrapper that returns a function that emits an event once it's
    * called. This makes it easier for transports to emit specific events. The
    * scope of this function is limited as it will only emit one single argument.
@@ -99,14 +110,26 @@ substream = function factory(Stream) {
   /**
    * Write a new message to the streams.
    *
-   * @param {Arguments} ..args.. Stuff that get's written.
+   * @param {Mixed} msg The data that needs to be written.
    * @returns {Boolean}
    * @api public
    */
   SubStream.prototype.write = function write(msg) {
-    return this.stream.write({
-      args: Array.prototype.slice.call(arguments),
-      substream: this.name
+    this.stream.transforms(this.primus, this, 'outgoing', msg);
+    return true;
+  };
+
+  /**
+   * Actually write the message.
+   *
+   * @param {Mixed} msg The data that needs to be written.
+   * @returns {Boolean}
+   * @api private
+   */
+  SubStream.prototype._write = function write(msg) {
+    return this.stream._write({
+      substream: this.name,
+      args: msg
     });
   };
 
@@ -157,10 +180,9 @@ substream = function factory(Stream) {
    */
   SubStream.prototype.mine = function mine(packet) {
     if ('object' !== typeof packet || packet.substream !== this.name) return false;
-    if ('substream::end' === packet.args[0]) return this.end(null, true), true;
+    if ('substream::end' === packet.args) return this.end(null, true), true;
 
-    packet.args.unshift('data');
-    this.emit.apply(this, packet.args);
+    this.stream.transforms(this.primus, this, 'incoming', packet.args);
 
     return true;
   };
