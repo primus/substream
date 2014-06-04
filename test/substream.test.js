@@ -288,7 +288,7 @@ describe('multi-stream', function test() {
       });
     });
 
-    it('removes substreams from the streams object on end', function () {
+    it('removes substreams from the streams object on end', function (done) {
       primus.on('connection', function (spark) {
         var foo = spark.substream('foo');
 
