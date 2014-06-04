@@ -313,4 +313,41 @@ describe('multi-stream', function test() {
       });
     });
   });
+
+  describe('transform', function () {
+    it('runs message transformers', function (done) {
+      primus.use('substream', plugin);
+      primus.transform('incoming', function (packet) {
+        var data = packet.data;
+
+        if (!data.event) return;
+
+        assume(data.added).to.equal('bar');
+        this.emit(data.event);
+        return false;
+      });
+
+      primus.on('connection', function (spark) {
+        var foo = spark.substream('foo');
+
+        foo.on('custom', function () {
+          spark.end();
+          done();
+        });
+
+        foo.on('data', function () {
+          throw new Error('I should be intercepted');
+        });
+      });
+
+      var socket = new primus.Socket('http://localhost:'+ port)
+        , foo = socket.substream('foo');
+
+      socket.transform('outgoing', function (packet) {
+        packet.data.added = 'bar';
+      });
+
+      foo.write({ event: 'custom' });
+    });
+  });
 });
