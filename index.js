@@ -24,6 +24,7 @@ exports.server = function server(primus) {
   Spark.prototype.substream = function substream(name) {
     if (!this.streams) this.streams = {};
     if (!this.streams[name]) this.streams[name] = new SubStream(this, name, {
+      primus: this.primus,
       proxy: [ 'error' ]
     });
 
@@ -78,7 +79,8 @@ exports.client = function client(primus) {
       proxy: [
         'offline', 'online', 'timeout', 'reconnecting', 'open', 'reconnect',
         'error', 'close'
-      ]
+      ],
+      primus: primus
     });
 
     return primus.streams[name];
