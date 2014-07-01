@@ -11,8 +11,65 @@ var library = require('fs').readFileSync(__dirname + '/substream.js', 'utf-8')
  * @api public
  */
 exports.server = function server(primus) {
-  var SubStream = substream(require('stream'))
+  var hasOwn = Object.prototype.hasOwn
+    , Stream = require('stream')
+    , SubStream = substream(Stream)
+    , emit = Stream.prototype.emit
     , Spark = primus.Spark;
+
+  /**
+   * Return a preconfigured listener.
+   *
+   * @param {String} event Name of the event.
+   * @returns {Function} listener
+   * @api private
+   */
+  function listen(event, spark) {
+    if ('end' === event) return function end() {
+      if (!spark.streams) return;
+
+      for (var stream in spark.streams) {
+        stream = spark.streams[stream];
+        if (stream.end) stream.end();
+      }
+    };
+
+    if ('readyStateChange' === event) return function change(reason) {
+      if (!spark.streams) return;
+
+      for (var stream in spark.streams) {
+        stream = spark.streams[stream];
+        stream.readyState = spark.readyState;
+        if (stream.emit) emit.call(stream, event, reason);
+      }
+    };
+
+    return function proxy() {
+      if (!spark.streams) return;
+
+      var args = Array.prototype.slice.call(arguments, 0);
+
+      for (var stream in spark.streams) {
+        if (stream.emit) emit.call(stream, [event].concat(args));
+      }
+    };
+  }
+
+  /**
+   * Setup the Primus instance so we can start creating substreams.
+   *
+   * @param {Spark} spark Incoming connection
+   * @api private
+   */
+  function setup(spark) {
+    spark.streams = {};
+
+    var events = [ 'error', 'end', 'readyStateChange' ];
+
+    for (var i = 0; i < events.length; i++) {
+      spark.on(events[i], listen(events[i], spark));
+    }
+  }
 
   /**
    * Create a new namespace.
@@ -22,31 +79,36 @@ exports.server = function server(primus) {
    * @api private
    */
   Spark.prototype.substream = function substream(name) {
-    if (!this.streams) this.streams = {};
+    if (!this.streams) setup(this);
     if (!this.streams[name]) this.streams[name] = new SubStream(this, name, {
-      primus: this.primus,
-      proxy: [ 'error' ]
+      primus: this.primus
     });
 
     return this.streams[name];
   };
 
   /**
-   * Incoming message.
+   * Intercept the incoming messages to see if they belong to a given substream.
    *
-   * @param {Object} packet The message packet
+   * @param {Object} packet The message packet.
    * @api private
    */
   primus.transform('incoming', function incoming(packet) {
     var next;
 
+    if (!this.streams) return;
+
     for (var stream in this.streams) {
-      if (this.streams[stream].mine(packet.data)) next = false;
+      stream = this.streams[stream];
+
+      if (stream.mine && stream.mine(packet.data)) {
+        next = false;
+        break;
+      }
     }
 
     return next;
   });
-
 };
 
 /**
@@ -56,15 +118,65 @@ exports.server = function server(primus) {
  * @api public
  */
 exports.client = function client(primus) {
-  var SubStream = substream(Primus.Stream);
+  var SubStream = substream(Primus.Stream)
+    , emit = Primus.Stream.prototype.emit
+    , hasOwn = Object.prototype.hasOwn;
 
   /**
-   * Collection of SubStreams.
+   * Return a preconfigured listener.
    *
-   * @type {Object}
+   * @param {String} event Name of the event.
+   * @returns {Function} listener
    * @api private
    */
-  primus.streams = {};
+  function listen(event) {
+    if ('end' === event) return function end() {
+      if (!primus.streams) return;
+
+      for (var stream in primus.streams) {
+        stream = primus.streams[stream];
+        if (stream.end) stream.end();
+      }
+    };
+
+    if ('readyStateChange' === event) return function change(reason) {
+      if (!primus.streams) return;
+
+      for (var stream in primus.streams) {
+        stream = primus.streams[stream];
+        stream.readyState = primus.readyState;
+        if (stream.emit) emit.call(stream, event, reason);
+      }
+    };
+
+    return function proxy() {
+      if (!primus.streams) return;
+
+      var args = Array.prototype.slice.call(arguments, 0);
+
+      for (var stream in primus.streams) {
+        if (stream.emit) emit.call(stream, [event].concat(args));
+      }
+    };
+  }
+
+  /**
+   * Setup the Primus instance so we can start creating substreams.
+   *
+   * @api private
+   */
+  function setup() {
+    primus.streams = {};
+
+    var events = [
+      'offline', 'online', 'timeout', 'reconnecting', 'open', 'reconnect',
+      'error', 'close', 'end', 'readyStateChange'
+    ];
+
+    for (var i = 0; i < events.length; i++) {
+      primus.on(events[i], listen(events[i]));
+    }
+  }
 
   /**
    * Create a new namespace.
@@ -74,12 +186,13 @@ exports.client = function client(primus) {
    * @api private
    */
   primus.substream = function substream(name) {
-    if (!primus.streams) primus.streams = {};
+    //
+    // First time that we've been called, setup the additional data structure
+    // for this connection and make sure we set all our listeners once to reduce
+    // memory when using a large portion of listeners.
+    //
+    if (!primus.streams) setup();
     if (!primus.streams[name]) primus.streams[name] = new SubStream(primus, name, {
-      proxy: [
-        'offline', 'online', 'timeout', 'reconnecting', 'open', 'reconnect',
-        'error', 'close'
-      ],
       primus: primus
     });
 
@@ -87,16 +200,23 @@ exports.client = function client(primus) {
   };
 
   /**
-   * Incoming message.
+   * Intercept the incoming messages to see if they belong to a given substream.
    *
-   * @param {Object} packet The message packet
+   * @param {Object} packet The message packet.
    * @api private
    */
   primus.transform('incoming', function incoming(packet) {
     var next;
 
+    if (!this.streams) return;
+
     for (var stream in this.streams) {
-      if (this.streams[stream].mine(packet.data)) next = false;
+      stream = this.streams[stream];
+
+      if (stream.mine && stream.mine(packet.data)) {
+        next = false;
+        break;
+      }
     }
 
     return next;

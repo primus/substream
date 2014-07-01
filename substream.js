@@ -33,22 +33,6 @@ substream = function factory(Stream) {
     this.primus = options.primus;         // Primus reference.
 
     //
-    // We're always as ready as the underlying stream.
-    //
-    this.stream.on('readyStateChange', function readyStateChange(why) {
-      self.readyState = stream.readyState;
-      self.emit('readyStateChange', why);
-    });
-
-    //
-    // Ensure that we've properly closed the SubStream when the connection is
-    // fully ended, not closed.
-    //
-    this.stream.once('end', function end() {
-      self.end();
-    });
-
-    //
     // Register the SubStream on the socket.
     //
     if (!stream.streams) stream.streams = {};
