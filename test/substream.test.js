@@ -52,6 +52,34 @@ describe('multi-stream', function test() {
       primus.use('substream', plugin);
     });
 
+    it('doesnt complain about leaking events', function (done) {
+      this.timeout(30000);
+
+      primus.on('connection', function (spark) {
+        var y = 0;
+
+        for (var i = 0; i < 100; i++) {
+          spark.substream('foo-'+ i).on('data', function (data) {
+            assume(data).to.equal('foo');
+
+            if (++y !== 99) return;
+
+            spark.end();
+            done();
+          });
+        }
+      });
+
+      var Socket = primus.Socket
+        , socket = new Socket('http://localhost:'+ port);
+
+      socket.on('open', function () {
+        for (var i = 0; i < 100; i++) {
+          socket.substream('foo-'+ i).write('foo');
+        }
+      });
+    });
+
     it('can communicate over a substream', function (done) {
       primus.on('connection', function (spark) {
         var foo = spark.substream('foo');
