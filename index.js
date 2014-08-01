@@ -1,8 +1,9 @@
 /*global Primus*/
 'use strict';
 
-var library = require('fs').readFileSync(__dirname + '/substream.js', 'utf-8')
-  , substream = require('load').compiler(library).substream;
+var file = __dirname + '/substream.js'
+  , library = require('fs').readFileSync(file, 'utf-8')
+  , substream = require('load').compiler(library, file).substream;
 
 /**
  * SubStream for the Primus server.
