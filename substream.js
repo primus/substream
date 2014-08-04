@@ -99,6 +99,8 @@ substream = function factory(Stream) {
    * @api public
    */
   SubStream.prototype.write = function write(msg) {
+    if (!this.stream) return false;
+
     this.stream.transforms(this.primus, this, 'outgoing', msg);
     return true;
   };
@@ -144,13 +146,13 @@ substream = function factory(Stream) {
       delete this.stream.streams[this.name];
     }
 
-    this.emit('close');
-    this.emit('end');
-
     //
     // Release references.
     //
     this.stream = null;
+
+    this.emit('close');
+    this.emit('end');
 
     return this.removeAllListeners();
   };

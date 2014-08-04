@@ -340,6 +340,27 @@ describe('multi-stream', function test() {
         done();
       });
     });
+
+    it('returns false when ended', function (done) {
+      primus.on('connection', function (spark) {
+        var foo = spark.substream('foo');
+
+        foo.on('data', function (msg) {
+          foo.end();
+        });
+
+        foo.on('end', function () {
+          assume(foo.write('bar')).to.equal(false);
+          spark.end();
+          done();
+        });
+      });
+
+      var socket = new primus.Socket('http://localhost:'+ port)
+        , foo = socket.substream('foo');
+
+      foo.write('bar');
+    });
   });
 
   describe('transform', function () {
