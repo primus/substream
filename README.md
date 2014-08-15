@@ -1,7 +1,7 @@
 # SubStream
 
-[![Build Status](https://travis-ci.org/primus/substream.png)](https://travis-ci.org/primus/substream)
-[![NPM version](https://badge.fury.io/js/substream.png)](http://badge.fury.io/js/substream)
+[![Build Status](https://travis-ci.org/primus/substream.svg)](https://travis-ci.org/primus/substream)
+[![NPM version](https://badge.fury.io/js/substream.svg)](http://badge.fury.io/js/substream)
 
 SubStream is a simple stream multiplexer for [Primus]. It allows you to create
 simple message channels which only receive the information you send to it. These
