@@ -1,7 +1,6 @@
 # SubStream
 
-[![Build Status](https://travis-ci.org/primus/substream.svg)](https://travis-ci.org/primus/substream)
-[![NPM version](https://badge.fury.io/js/substream.svg)](http://badge.fury.io/js/substream)
+[![Version npm](http://img.shields.io/npm/v/substream.svg?style=flat-square)](http://browsenpm.org/package/substream)[![Build Status](http://img.shields.io/travis/primus/substream/master.svg?style=flat-square)](https://travis-ci.org/primus/substream)[![Dependencies](https://img.shields.io/david/primus/substream.svg?style=flat-square)](https://david-dm.org/primus/substream)[![Coverage Status](http://img.shields.io/coveralls/primus/substream/master.svg?style=flat-square)](https://coveralls.io/r/primus/substream?branch=master)[![IRC channel](http://img.shields.io/badge/IRC-irc.freenode.net%23primus-00a8ff.svg?style=flat-square)](http://webchat.freenode.net/?channels=primus)
 
 SubStream is a simple stream multiplexer for [Primus]. It allows you to create
 simple message channels which only receive the information you send to it. These
