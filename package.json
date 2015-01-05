@@ -4,7 +4,10 @@
   "description": "Volatile namespaces for Primus",
   "main": "index.js",
   "scripts": {
-    "test": "mocha $(find test -name '*.test.js')"
+    "test": "mocha test.js",
+    "watch": "mocha --watch test.js",
+    "coverage": "istanbul cover ./node_modules/.bin/_mocha -- test.js",
+    "test-travis": "istanbul cover node_modules/.bin/_mocha --report lcovonly -- test.js"
   },
   "keywords": [
     "primus",
@@ -22,10 +25,11 @@
     "url": "git://github.com/primus/substream.git"
   },
   "devDependencies": {
-    "primus": "git://github.com/primus/primus.git#master",
     "assume": "0.0.x",
+    "istanbul": "0.3.x",
+    "mocha": "2.1.x",
     "pre-commit": "0.0.x",
-    "mocha": "1.19.x",
-    "ws": "0.4.x"
+    "primus": "2.4.x",
+    "ws": "0.6.x"
   }
 }

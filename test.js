@@ -3,7 +3,7 @@ describe('multi-stream', function test() {
 
   var Primus = require('primus')
     , assume = require('assume')
-    , plugin = require('../')
+    , plugin = require('./')
     , http = require('http')
     , port = 1024
     , primus;
