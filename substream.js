@@ -136,7 +136,7 @@ substream = function factory(Stream) {
     }
 
     if (msg) this.write(msg);
-    if (!received) this.write('substream::end');
+    if (!received) this._write('substream::end');
 
     //
     // As we've closed the stream, unregister our selfs from the `streams`
