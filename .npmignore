@@ -1,0 +1,5 @@
+coverage/
+example/
+primus.js
+test.js
+.*
