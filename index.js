@@ -65,11 +65,11 @@ exports.server = function server(primus) {
   function setup(spark) {
     spark.streams = {};
 
-    var events = [ 'error', 'end', 'readyStateChange' ];
-
-    for (var i = 0; i < events.length; i++) {
-      spark.on(events[i], listen(events[i], spark));
-    }
+    Object.keys(spark.reserved.events).filter(function filter(event) {
+      return 'data' !== event;
+    }).forEach(function each(event) {
+      spark.on(event, listen(event, spark));
+    });
   }
 
   /**
@@ -169,13 +169,10 @@ exports.client = function client(primus) {
   function setup() {
     primus.streams = {};
 
-    var events = [
-      'offline', 'online', 'timeout', 'reconnecting', 'open', 'reconnect',
-      'error', 'close', 'end', 'readyStateChange'
-    ];
+    for (var event in primus.reserved.events) {
+      if ('data' === event) continue;
 
-    for (var i = 0; i < events.length; i++) {
-      primus.on(events[i], listen(events[i]));
+      primus.on(event, listen(event));
     }
   }
 
