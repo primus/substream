@@ -12,8 +12,7 @@ var file = __dirname + '/substream.js'
  * @api public
  */
 exports.server = function server(primus) {
-  var hasOwn = Object.prototype.hasOwn
-    , Stream = require('stream')
+  var Stream = require('stream')
     , SubStream = substream(Stream)
     , emit = Stream.prototype.emit
     , Spark = primus.Spark;
@@ -120,8 +119,7 @@ exports.server = function server(primus) {
  */
 exports.client = function client(primus) {
   var SubStream = substream(Primus.Stream)
-    , emit = Primus.Stream.prototype.emit
-    , hasOwn = Object.prototype.hasOwn;
+    , emit = Primus.Stream.prototype.emit;
 
   /**
    * Return a preconfigured listener.
