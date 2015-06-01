@@ -9,9 +9,7 @@
   "author": "Arnout Kazemier",
   "license": "MIT",
   "dependencies": {
-    "engine.io": "~0.7.9"
-  },
-  "devDependencies": {
-    "engine.io-client": "~0.7.9"
+    "engine.io": "^1.5.1",
+    "primus": "^3.0.2"
   }
 }
