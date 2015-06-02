@@ -1,11 +1,12 @@
-//
-// Wrapper needed to switch between server side based Streams and client side
-// based EventEmitter3. This way, we can inherit from all of them.
-//
-substream = function factory(Stream) {
+/**
+ * A wrapper function to switch the parent class which is Streams on the server
+ * and EventEmitter3 on the client. This way, we can inherit from both of them.
+ *
+ * @param {Stream|EventEmitter3} Stream The class that SubStream inherits from.
+ * @api public
+ */
+function factory(Stream) {
   'use strict';
-
-  var manual = false;
 
   /**
    * Streams provides a streaming, namespaced interface on top of a regular
@@ -37,10 +38,7 @@ substream = function factory(Stream) {
     if (!stream.streams) stream.streams = {};
     if (!stream.streams[name]) stream.streams[name] = this;
 
-    //
-    // We're doing "manual" invocation of module, as require('util') didn't work.
-    //
-    if (manual) Stream.call(this);
+    Stream.call(this);
 
     //
     // No need to continue with the execution if we don't have any events that
@@ -54,12 +52,10 @@ substream = function factory(Stream) {
     }
   }
 
-  try { require('util').inherits(SubStream, Stream); }
-  catch (e) {
-    manual = true;
-    SubStream.prototype = new Stream();
-    SubStream.prototype.constructor = SubStream;
-  }
+  function Ctor() {}
+  Ctor.prototype = Stream.prototype;
+  SubStream.prototype = new Ctor();
+  SubStream.prototype.constructor = SubStream;
 
   /**
    * Mirror or Primus readyStates, used internally to set the correct ready state.
@@ -173,4 +169,9 @@ substream = function factory(Stream) {
   };
 
   return SubStream;
-};
+}
+
+//
+// Expose the wrapper.
+//
+module.exports = factory;
