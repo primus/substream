@@ -17,9 +17,6 @@
   ],
   "author": "Arnout Kazemier",
   "license": "MIT",
-  "dependencies": {
-    "load": "1.0.x"
-  },
   "repository": {
     "type": "git",
     "url": "git://github.com/primus/substream.git"

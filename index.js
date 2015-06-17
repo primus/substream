@@ -1,9 +1,7 @@
 /*global Primus*/
 'use strict';
 
-var file = __dirname + '/substream.js'
-  , library = require('fs').readFileSync(file, 'utf-8')
-  , substream = require('load').compiler(library, file).substream;
+var substream = require('./substream');
 
 /**
  * SubStream for the Primus server.
@@ -118,7 +116,7 @@ exports.server = function server(primus) {
  * @api public
  */
 exports.client = function client(primus) {
-  var SubStream = substream(Primus.Stream)
+  var SubStream = Primus._substream(Primus.Stream)
     , emit = Primus.Stream.prototype.emit;
 
   /**
@@ -222,4 +220,4 @@ exports.client = function client(primus) {
 //
 // Expose the library.
 //
-exports.library = library;
+exports.library = 'Primus._substream = '+ substream.toString();
