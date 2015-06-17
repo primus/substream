@@ -24,7 +24,6 @@ substream = function factory(Stream) {
   function SubStream(stream, name, options) {
     if (!(this instanceof SubStream)) return new SubStream(stream, name, options);
 
-    var self = this;
     options = options || {};
 
     this.readyState = stream.readyState;  // Copy the current readyState.
