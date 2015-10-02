@@ -6,8 +6,8 @@
   "scripts": {
     "test": "mocha",
     "watch": "mocha --watch",
-    "coverage": "istanbul cover ./node_modules/.bin/_mocha",
-    "test-travis": "istanbul cover node_modules/.bin/_mocha --report lcovonly"
+    "coverage": "istanbul cover _mocha",
+    "test-travis": "istanbul cover _mocha --report lcovonly"
   },
   "keywords": [
     "primus",
@@ -22,11 +22,11 @@
     "url": "git://github.com/primus/substream.git"
   },
   "devDependencies": {
-    "assume": "1.2.x",
+    "assume": "1.3.x",
     "istanbul": "0.3.x",
-    "mocha": "2.2.x",
-    "pre-commit": "1.0.x",
-    "primus": "3.1.x",
-    "ws": "0.7.x"
+    "mocha": "2.3.x",
+    "pre-commit": "1.1.x",
+    "primus": "3.2.x",
+    "ws": "0.8.x"
   }
 }
