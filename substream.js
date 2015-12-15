@@ -8,6 +8,20 @@
 function factory(Stream) {
   'use strict';
 
+  var toString = Object.prototype.toString
+    , slice = Array.prototype.slice;
+
+  /**
+   * Check if the given `value` is an `Array`.
+   *
+   * @param {Mixed} value The value to check.
+   * @return {Boolean}
+   * @api private
+   */
+  var isArray = Array.isArray || function isArray(value) {
+    return '[object Array]' === toString.call(value);
+  };
+
   /**
    * Streams provides a streaming, namespaced interface on top of a regular
    * stream.
@@ -87,6 +101,20 @@ function factory(Stream) {
   };
 
   /**
+   * Emit an event from client to server and vice versa.
+   *
+   * @param {String} event Name of the event to emit.
+   * @param {...Mixed} [args] The arguments to pass to the event listeners.
+   * @returns {Boolean}
+   * @api public
+   */
+  SubStream.prototype.trigger = function trigger() {
+    if (!arguments.length || !this.stream) return false;
+
+    return this._write({ emit: slice.call(arguments) });
+  };
+
+  /**
    * Write a new message to the streams.
    *
    * @param {Mixed} msg The data that needs to be written.
@@ -161,9 +189,21 @@ function factory(Stream) {
    */
   SubStream.prototype.mine = function mine(packet) {
     if ('object' !== typeof packet || packet.substream !== this.name) return false;
-    if ('substream::end' === packet.args) return this.end(null, true), true;
 
-    this.stream.transforms(this.primus, this, 'incoming', packet.args);
+    packet = packet.args;
+
+    if ('object' === typeof packet && isArray(packet.emit)) {
+      //
+      // We've received an emit packet. If the event is not reserved, emit it.
+      //
+      if (!this.stream.reserved(packet.emit[0])) {
+        this.emit.apply(this, packet.emit);
+      }
+    } else if ('substream::end' === packet) {
+      this.end(null, true);
+    } else {
+      this.stream.transforms(this.primus, this, 'incoming', packet);
+    }
 
     return true;
   };
