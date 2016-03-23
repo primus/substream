@@ -22,11 +22,11 @@
     "url": "git://github.com/primus/substream.git"
   },
   "devDependencies": {
-    "assume": "1.3.x",
-    "istanbul": "0.3.x",
-    "mocha": "2.3.x",
+    "assume": "1.4.x",
+    "istanbul": "0.4.x",
+    "mocha": "2.4.x",
     "pre-commit": "1.1.x",
-    "primus": "3.2.x",
-    "ws": "0.8.x"
+    "primus": "5.0.x",
+    "ws": "1.0.x"
   }
 }
