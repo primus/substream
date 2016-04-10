@@ -1,4 +1,4 @@
-describe('multi-stream', function test() {
+describe('SubStream', function test() {
   'use strict';
 
   var Primus = require('primus')
@@ -11,7 +11,9 @@ describe('multi-stream', function test() {
 
   beforeEach(function (done) {
     var server = http.createServer();
-    primus = new Primus(server, { transformer: 'websockets' });
+    primus = new Primus(server, {
+      plugin: { 'substream': plugin }
+    });
 
     port++;
     server.listen(port, done);
@@ -22,19 +24,14 @@ describe('multi-stream', function test() {
   });
 
   it('is compatible as a server-side plugin', function () {
-    primus.use('multi-stream', plugin);
     primus.save(__dirname+ '/primus.js');
   });
 
   it('is compatible as a client-side plugin', function () {
-    primus.use('multi-stream', plugin);
-
-    var Socket = primus.Socket;
+    primus.Socket;
   });
 
   it('exposes the substream function', function (done) {
-    primus.use('substream', plugin);
-
     primus.on('connection', function (spark) {
       assume(spark.substream).to.be.a('function');
       spark.end();
@@ -48,10 +45,6 @@ describe('multi-stream', function test() {
   });
 
   describe('communication', function () {
-    beforeEach(function () {
-      primus.use('substream', plugin);
-    });
-
     it('doesnt complain about leaking events', function (done) {
       this.timeout(30000);
 
@@ -363,9 +356,67 @@ describe('multi-stream', function test() {
     });
   });
 
+  describe('trigger', function () {
+    it('emits custom events from client to server', function (done) {
+      primus.on('connection', function (spark) {
+        var foo = spark.substream('foo');
+
+        foo.on('custom', function (arg) {
+          assume(arg).to.equal('bar');
+          done();
+        });
+
+        foo.on('end', spark.end.bind(spark));
+      });
+
+      var socket = new primus.Socket('http://localhost:'+ port)
+        , foo = socket.substream('foo');
+
+      foo.trigger('custom', 'bar');
+    });
+
+    it('emits custom events from server to client', function (done) {
+      primus.on('connection', function (spark) {
+        var foo = spark.substream('foo');
+
+        foo.trigger('custom', 'bar');
+      });
+
+      var socket = new primus.Socket('http://localhost:'+ port)
+        , foo = socket.substream('foo');
+
+      foo.on('custom', function (arg) {
+        assume(arg).to.equal('bar');
+        done();
+      });
+    });
+
+    it('prevents reserved events from being emitted', function (done) {
+      primus.on('connection', function (spark) {
+        var foo = spark.substream('foo');
+
+        foo.trigger('readyStateChange', 'bar');
+        foo.end();
+      });
+
+      var socket = new primus.Socket('http://localhost:'+ port)
+        , foo = socket.substream('foo')
+        , count = 0;
+
+      foo.on('readyStateChange', function (arg) {
+        assume(arg).to.not.equal('bar');
+        count++;
+      });
+
+      foo.on('end', function () {
+        assume(count).is.gt(0);
+        done();
+      });
+    });
+  });
+
   describe('transform', function () {
     it('runs message transformers', function (done) {
-      primus.use('substream', plugin);
       primus.transform('incoming', function (packet) {
         var data = packet.data;
 

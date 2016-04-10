@@ -141,6 +141,29 @@ primus.on('connection', function (spark) {
 })
 ```
 
+### Emitting events from client to server and vice versa
+
+It is also possible to emit events from client to server and the other way round.
+The functionality is the same offered by [`primus-emit`][primus-emit], but in
+this case you have to use the `trigger` method.
+
+```js
+primus.on('connection', function (spark) {
+  var foo = spark.substream('foo');
+
+  foo.on('custom-event', function (data) {
+    console.log('foo received:', data);
+  });
+})
+```
+
+```js
+var primus = new Primus(url);
+  , foo = primus.substream('foo');
+
+foo.trigger('custom-event', 'bar');
+```
+
 ### FYI's
 
 - When the spark/connection closes all SubStreams will automatically close, this
@@ -153,3 +176,4 @@ primus.on('connection', function (spark) {
 MIT
 
 [Primus]: http://github.com/primus/primus
+[primus-emit]: https://github.com/primus/primus-emit
