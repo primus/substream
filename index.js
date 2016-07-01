@@ -99,7 +99,10 @@ exports.server = function server(primus) {
     for (var stream in this.streams) {
       stream = this.streams[stream];
 
-      if (stream.mine && stream.mine(packet.data)) {
+      if (stream.myData && stream.myData(packet.data)) {
+        next = false;
+        break;
+      } else if (stream.myEvent && stream.myEvent(packet.data)) {
         next = false;
         break;
       }
@@ -207,7 +210,10 @@ exports.client = function client(primus) {
     for (var stream in this.streams) {
       stream = this.streams[stream];
 
-      if (stream.mine && stream.mine(packet.data)) {
+      if (stream.myData && stream.myData(packet.data)) {
+        next = false;
+        break;
+      } else if (stream.myEvent && stream.myEvent(packet.data)) {
         next = false;
         break;
       }

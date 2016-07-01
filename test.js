@@ -399,4 +399,44 @@ describe('multi-stream', function test() {
       foo.write({ event: 'custom' });
     });
   });
+
+  describe('events', function () {
+    it('should emit an event from server to client', function (done) {
+      primus.use('substream', plugin);
+
+      primus.on('connection', function (spark) {
+        spark.substream('foo').emit('foo-event', 1, 2, 3);
+      });
+
+      var Socket = primus.Socket
+        , socket = new Socket('http://localhost:'+ port);
+
+      socket.substream('foo').on('foo-event', function (a, b, c) {
+        assume(a).to.equal(1);
+        assume(b).to.equal(2);
+        assume(c).to.equal(3);
+        done();
+      });
+    });
+
+    it('should emit an event from client to server', function (done) {
+      primus.use('substream', plugin);
+
+      primus.on('connection', function (spark) {
+        socket.substream('foo').on('foo-event', function (a, b, c) {
+          assume(a).to.equal(1);
+          assume(b).to.equal(2);
+          assume(c).to.equal(3);
+          done();
+        })
+      })
+
+      var Socket = primus.Socket
+        , socket = new Socket('http://localhost:'+ port);
+
+      socket.on('open', function () {
+        socket.substream('foo').emit('foo-event', 1, 2, 3);
+      });
+    });
+  });
 });
