@@ -8,7 +8,6 @@ describe('multi-stream', function test() {
     , port = 1024
     , primus;
 
-
   beforeEach(function (done) {
     var server = http.createServer();
     primus = new Primus(server, { transformer: 'websockets' });
@@ -22,18 +21,18 @@ describe('multi-stream', function test() {
   });
 
   it('is compatible as a server-side plugin', function () {
-    primus.use('multi-stream', plugin);
+    primus.plugin('multi-stream', plugin);
     primus.save(__dirname+ '/primus.js');
   });
 
   it('is compatible as a client-side plugin', function () {
-    primus.use('multi-stream', plugin);
+    primus.plugin('multi-stream', plugin);
 
     var Socket = primus.Socket;
   });
 
   it('exposes the substream function', function (done) {
-    primus.use('substream', plugin);
+    primus.plugin('substream', plugin);
 
     primus.on('connection', function (spark) {
       assume(spark.substream).to.be.a('function');
@@ -49,7 +48,7 @@ describe('multi-stream', function test() {
 
   describe('communication', function () {
     beforeEach(function () {
-      primus.use('substream', plugin);
+      primus.plugin('substream', plugin);
     });
 
     it('doesnt complain about leaking events', function (done) {
@@ -365,7 +364,7 @@ describe('multi-stream', function test() {
 
   describe('transform', function () {
     it('runs message transformers', function (done) {
-      primus.use('substream', plugin);
+      primus.plugin('substream', plugin);
       primus.transform('incoming', function (packet) {
         var data = packet.data;
 
