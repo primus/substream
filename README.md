@@ -1,6 +1,6 @@
 # SubStream
 
-[![Version npm](http://img.shields.io/npm/v/substream.svg?style=flat-square)](http://browsenpm.org/package/substream)[![Build Status](http://img.shields.io/travis/primus/substream/master.svg?style=flat-square)](https://travis-ci.org/primus/substream)[![Dependencies](https://img.shields.io/david/primus/substream.svg?style=flat-square)](https://david-dm.org/primus/substream)[![Coverage Status](http://img.shields.io/coveralls/primus/substream/master.svg?style=flat-square)](https://coveralls.io/r/primus/substream?branch=master)[![IRC channel](http://img.shields.io/badge/IRC-irc.freenode.net%23primus-00a8ff.svg?style=flat-square)](http://webchat.freenode.net/?channels=primus)
+[![Version npm](https://img.shields.io/npm/v/substream.svg?style=flat-square)](http://browsenpm.org/package/substream)[![Build Status](https://img.shields.io/travis/primus/substream/master.svg?style=flat-square)](https://travis-ci.org/primus/substream)[![Dependencies](https://img.shields.io/david/primus/substream.svg?style=flat-square)](https://david-dm.org/primus/substream)[![Coverage Status](https://img.shields.io/coveralls/primus/substream/master.svg?style=flat-square)](https://coveralls.io/r/primus/substream?branch=master)[![IRC channel](https://img.shields.io/badge/IRC-irc.freenode.net%23primus-00a8ff.svg?style=flat-square)](https://webchat.freenode.net/?channels=primus)
 
 SubStream is a simple stream multiplexer for [Primus]. It allows you to create
 simple message channels which only receive the information you send to it. These
@@ -42,11 +42,11 @@ a plugin in to [Primus]:
 
 ```js
 //
-// The `primus.use` method adds the plugin to primus. It requires a unique
+// The `primus.plugin` method adds the plugin to primus. It requires a unique
 // name in order to easily retrieve it again. For the
 // sake of clarity, we're going to use 'substream' as the name.
 //
-primus.use('substream', require('substream'));
+primus.plugin('substream', require('substream'));
 ```
 
 After you've added plugins, you might want to re-compile the client library that
@@ -150,6 +150,6 @@ primus.on('connection', function (spark) {
 
 ## License
 
-MIT
+[MIT](LICENSE)
 
-[Primus]: http://github.com/primus/primus
+[Primus]: https://github.com/primus/primus
