@@ -28,7 +28,7 @@ primus = new Primus(server, { transformer: 'engine.io' });
 //
 // Add the SubStream plugin.
 //
-primus.use('substream', require('../'));
+primus.plugin('substream', require('../'));
 
 //
 // Listen for new connections and send data
