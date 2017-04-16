@@ -21,6 +21,9 @@
     "type": "git",
     "url": "git://github.com/primus/substream.git"
   },
+  "peerDependencies": {
+    "primus": "*"
+  },
   "devDependencies": {
     "assume": "~1.5.0",
     "istanbul": "~0.4.5",
