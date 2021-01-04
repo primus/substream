@@ -5,9 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "mocha",
-    "watch": "mocha --watch",
-    "coverage": "istanbul cover _mocha",
-    "test-travis": "istanbul cover _mocha --report lcovonly"
+    "watch": "mocha --watch"
   },
   "keywords": [
     "primus",
