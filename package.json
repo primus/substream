@@ -23,7 +23,6 @@
   },
   "devDependencies": {
     "assume": "~2.3.0",
-    "istanbul": "~0.4.5",
     "mocha": "~8.2.1",
     "pre-commit": "~1.2.0",
     "primus": "~8.0.1",
