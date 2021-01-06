@@ -68,6 +68,24 @@ function factory(Stream) {
   SubStream.OPEN    = 3;   // The connection is open.
 
   /**
+   * wrap emit event to emit events across the wire
+   *
+   * @param  {String} event
+   * @param  {*} ...args
+   */
+  SubStream.prototype.emit = function (event/* ..args */) {
+    if (this.stream && event !== 'data' && event !== 'end') {
+      this.stream._write({
+        substream: this.name,
+        event: Array.prototype.slice.call(arguments)
+      });
+    }
+
+    // super
+    return Stream.prototype.emit.apply(this, arguments);
+  }
+
+  /**
    * Simple emit wrapper that returns a function that emits an event once it's
    * called. This makes it easier for transports to emit specific events. The
    * scope of this function is limited as it will only emit one single argument.
@@ -159,11 +177,27 @@ function factory(Stream) {
    * @returns {Boolean} This packet is handled by the SubStream
    * @api public
    */
-  SubStream.prototype.mine = function mine(packet) {
-    if ('object' !== typeof packet || packet.substream !== this.name) return false;
+  SubStream.prototype.myData = function mine(packet) {
+    if ('object' !== typeof packet || packet.substream !== this.name || !packet.args) return false;
     if ('substream::end' === packet.args) return this.end(null, true), true;
 
     this.stream.transforms(this.primus, this, 'incoming', packet.args);
+
+    return true;
+  };
+
+  /**
+   * Check if the incoming `data` packet is intended for this stream.
+   *
+   * @param {Mixed} packet The message that's received by the stream.
+   * @returns {Boolean} This packet is handled by the SubStream
+   * @api public
+   */
+  SubStream.prototype.myEvent = function mine(packet) {
+    if ('object' !== typeof packet || packet.substream !== this.name || !packet.event) return false;
+    if ('substream::end' === packet.args) return this.end(null, true), true;
+
+    Stream.prototype.emit.apply(this, packet.event)
 
     return true;
   };
