@@ -1,6 +1,6 @@
 # SubStream
 
-[![Version npm](https://img.shields.io/npm/v/substream.svg?style=flat-square)](https://www.npmjs.com/package/substream)[![CI](https://img.shields.io/github/actions/workflow/status/primus/substream/ci.yml?branch=master&label=CI&style=flat-square)](https://github.com/primus/substream/actions?query=workflow%3ACI+branch%3Amaster)[![Coverage Status](https://img.shields.io/coveralls/primus/substream/master.svg?style=flat-square)](https://coveralls.io/r/primus/substream?branch=master)
+[![Version npm](https://img.shields.io/npm/v/substream.svg?style=flat-square)](https://www.npmjs.com/package/substream)[![CI](https://img.shields.io/github/actions/workflow/status/primus/substream/ci.yml?branch=master&label=CI&style=flat-square)](https://github.com/primus/substream/actions?query=workflow%3ACI+branch%3Amaster)
 
 SubStream is a simple stream multiplexer for [Primus]. It allows you to create
 simple message channels which only receive the information you send to it. These
